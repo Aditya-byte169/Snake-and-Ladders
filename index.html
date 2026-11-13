@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snake and Ladder Game</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial;
+            background-color: lightblue;
+        }
+        h1 { color: darkblue; }
+        #board {
+            width: 500px;
+            height: 500px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            border: 3px solid black;
+        }
+        .box {
+            border: 1px solid black;
+            background-color: lightyellow;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+        }
+        .snake { background-color: lightcoral; }
+        .ladder { background-color: lightgreen; }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 18px;
+            background-color: darkblue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover { background-color: blue; }
+        #info { font-size: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🐍 Snake and Ladder 🪜</h1>
+    <h3>Player 1 🔴 vs Player 2 🔵</h3>
+    <div id="board"></div>
+    <h2 id="dice">Dice: 0</h2>
+    <button onclick="rollDice()">Roll Dice 🎲</button>
+    <button onclick="newGame()">New Game</button>
+    <p id="info">Player 1 Turn</p>
+
+    <script>
+        var board = document.getElementById("board");
+        var player1 = 0;
+        var player2 = 0;
+        var turn = 1;
+        var gameOver = false;
+
+        var snakes = {
+            27: 5,
+            40: 3,
+            54: 31,
+            66: 45,
+            89: 53,
+            99: 41
+        };
+
+        var ladders = {
+            4: 25,
+            13: 46,
+            33: 49,
+            42: 63,
+            50: 69,
+            62: 81,
+            74: 92
+        };
+
+        function createBoard() {
+            board.innerHTML = "";
+
+            for (var row = 9; row >= 0; row--) {
+                for (var col = 0; col < 10; col++) {
+                    var number;
+
+                    if (row % 2 == 0) {
+                        number = row * 10 + col + 1;
+                    } else {
+                        number = row * 10 + 10 - col;
+                    }
+
+                    var box = document.createElement("div");
+                    box.className = "box";
+                    box.id = "box" + number;
+                    box.innerHTML = number;
+
+                    if (snakes[number]) {
+                        box.classList.add("snake");
+                        box.innerHTML += "<br>🐍";
+                    }
+
+                    if (ladders[number]) {
+                        box.classList.add("ladder");
+                        box.innerHTML += "<br>🪜";
+                    }
+
+                    board.appendChild(box);
+                }
+            }
+            updateBoard();
+        }
+
+        function updateBoard() {
+            createTokens();
+        }
+
+        function createTokens() {
+            for (var i = 1; i <= 100; i++) {
+                var box = document.getElementById("box" + i);
+
+                if (box) {
+                    if (box.classList.contains("snake") ||
+                        box.classList.contains("ladder")) {
+                        if (snakes[i]) {
+                            box.innerHTML = i + "<br>🐍";
+                        } else {
+                            box.innerHTML = i + "<br>🪜";
+                        }
+                    } else {
+                        box.innerHTML = i;
+                    }
+                }
+            }
+
+            if (player1 > 0) {
+                document.getElementById("box" + player1).innerHTML +=
+                    "<br><span style='color:red'>🔴</span>";
+            }
+
+            if (player2 > 0) {
+                document.getElementById("box" + player2).innerHTML +=
+                    "<br><span style='color:blue'>🔵</span>";
+            }
+        }
+
+        function rollDice() {
+            if (gameOver == true) {
+                return;
+            }
+
+            var dice = Math.floor(Math.random() * 6) + 1;
+            document.getElementById("dice").innerHTML = "Dice: " + dice;
+
+            if (turn == 1) {
+                if (player1 + dice <= 100) {
+                    player1 = player1 + dice;
+                }
+
+                if (snakes[player1]) {
+                    player1 = snakes[player1];
+                }
+
+                if (ladders[player1]) {
+                    player1 = ladders[player1];
+                }
+
+                if (player1 == 100) {
+                    document.getElementById("info").innerHTML =
+                        "🎉 Player 1 Wins!";
+                    gameOver = true;
+                } else {
+                    turn = 2;
+                    document.getElementById("info").innerHTML =
+                        "Player 2 Turn 🔵";
+                }
+            } else {
+                if (player2 + dice <= 100) {
+                    player2 = player2 + dice;
+                }
+
+                if (snakes[player2]) {
+                    player2 = snakes[player2];
+                }
+
+                if (ladders[player2]) {
+                    player2 = ladders[player2];
+                }
+
+                if (player2 == 100) {
+                    document.getElementById("info").innerHTML =
+                        "🎉 Player 2 Wins!";
+                    gameOver = true;
+                } else {
+                    turn = 1;
+                    document.getElementById("info").innerHTML =
+                        "Player 1 Turn 🔴";
+                }
+            }
+
+            updateBoard();
+        }
+
+        function newGame() {
+            player1 = 0;
+            player2 = 0;
+            turn = 1;
+            gameOver = false;
+
+            document.getElementById("dice").innerHTML = "Dice: 0";
+            document.getElementById("info").innerHTML = "Player 1 Turn 🔴";
+            createBoard();
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
